@@ -1,7 +1,55 @@
 import React, { Component } from 'react'
 import Header from './components/ui/Header/Header'
+import ListItem from './components/ListItem';
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      books: [],
+      title: "",
+      author: "",
+      apiKey: ""
+    }
+  }
+
+  async componentDidMount() {
+    const key = await this.getApiKey();
+    console.log(key)
+      fetch("https://www.forverkliga.se/JavaScript/api/crud.php?op=select&key=" + key)
+        .then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          console.log(data)
+        })
+      
+  }
+
+  getApiKey(){
+    const key = localStorage.getItem("apiKey");
+    if(!key){
+      return fetch("https://www.forverkliga.se/JavaScript/api/crud.php?requestKey")
+        .then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          localStorage.setItem("apiKey", data.key)
+          return data.key;
+        })
+      } else {
+        return key;
+      }
+  }
+
+  handleApiRequest = data => {
+    this.setState({
+      apiKey: data
+    })
+    
+  }
+componentDidUpdate(){
+  console.log(this.state.apiKey)
+}
+
   render() {
     return (
       <div className="App">
@@ -18,7 +66,7 @@ class App extends Component {
                   aria-describedby="title"
                   placeholder="Lägg till titel"
                 />
-
+               
                 <input
                   type="text"
                   className="form-control"
@@ -58,6 +106,7 @@ class App extends Component {
                     </button>
                   </div>
                 </li>
+                <ListItem />
               </ul>
             </div>
           </div>
