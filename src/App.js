@@ -15,12 +15,12 @@ class App extends Component {
 
   async componentDidMount() {
     const key = await this.getApiKey();
-    console.log(key)
+    console.log(key);
       fetch("https://www.forverkliga.se/JavaScript/api/crud.php?op=select&key=" + key)
         .then(function (response) {
           return response.json();
         }).then(function (data) {
-          console.log(data)
+          console.log(data);
         })
       
   }
@@ -40,6 +40,14 @@ class App extends Component {
       }
   }
 
+  handleTitleInput(e) {
+    this.setState({
+      title: e.target.value
+    })
+  }
+
+  // skapa handle author input
+
   handleApiRequest = data => {
     this.setState({
       apiKey: data
@@ -49,6 +57,8 @@ class App extends Component {
 componentDidUpdate(){
   console.log(this.state.apiKey)
 }
+
+// books = [...books, {id , author, title}]
 
   render() {
     return (
@@ -65,9 +75,11 @@ componentDidUpdate(){
                   id="title"
                   aria-describedby="title"
                   placeholder="Lägg till titel"
+                  onChange={this.handleTitleInput}
                 />
                
-                <input
+               
+                <input // skapa en lyssnare onChange på skapad handleAuthorInput
                   type="text"
                   className="form-control"
                   id="author"
@@ -79,7 +91,9 @@ componentDidUpdate(){
                   placeholder="Lägg till författare"
                 />
               </div>
-              <button
+              <button /* fetch url med queryString title och author.
+              Om success spara in till books(lista) med title, author och id (från json Objekt);
+              */
                 type="submit"
                 className="btn btn-primary btn-lg btn-block"
               >
