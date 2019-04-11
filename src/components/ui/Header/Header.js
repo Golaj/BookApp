@@ -4,16 +4,13 @@ import Nav, { Link } from 'react-bootstrap/Nav'
 
 export default props => (
   <header>
-    <Navbar expand="lg" className="navbar-dark">
-      <Brand href="#home">Laboration 2: JavaScript/React/AJAX</Brand>
-      <Toggle aria-controls="basic-navbar-nav" />
+    <Navbar expand="lg" className="navbar-dark" id="navvy">
+     <div className="test">Save your favorite books in this wonderful booklist saver.</div>
+     {/*  <Toggle aria-controls="basic-navbar-nav" />
       <Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
-          <Link href="https://www.forverkliga.se/JavaScript/api/crud.php">
-            API Docs
-          </Link>
         </Nav>
-      </Collapse>
+      </Collapse> */}
     </Navbar>
   </header>
 )

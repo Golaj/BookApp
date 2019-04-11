@@ -1,7 +1,19 @@
 * {
   box-sizing: border-box;
 }
+html{
+  background: linear-gradient(135deg, #024959, #012027) no-repeat;
+  height :100%;
+}
+.test{
+font-size: 18px;
+color: white;
+text-align: center;
+width: 100%;
 
+
+
+}
 body {
   margin: 0;
   padding: 0;
@@ -79,4 +91,17 @@ header strong {
 
 .list-item .buttons button {
   margin-left: 10px;
+}
+.toggleButton{
+  color: #fff !important;
+  text-transform: uppercase;
+  background: #60a3bc;
+  padding: 20px;
+  display: inline-block;
+  border: none;
+  text-shadow: 0px 0px 6px rgba(255, 255, 255, 1);
+  -webkit-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
+  -moz-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
+  transition: all 0.4s ease 0s;
+  width: 100%;
 }
