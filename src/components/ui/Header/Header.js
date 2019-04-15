@@ -1,6 +1,5 @@
 import React from 'react'
-import Navbar, { Brand, Toggle, Collapse } from 'react-bootstrap/Navbar'
-import Nav, { Link } from 'react-bootstrap/Nav'
+import Navbar from 'react-bootstrap/Navbar'
 
 export default props => (
   <header>

@@ -10,8 +10,8 @@ export default(props) => (
         {props.author}</div>
 
         <div className="buttons">
-            <EditButton apiKey={props.apiKey} id={props.id}/>
-            <DeleteButton apiKey={props.apiKey} id={props.id}/>
+            <EditButton apiKey={props.apiKey} id={props.id} request={props.request} />
+            <DeleteButton apiKey={props.apiKey} id={props.id} request={props.request} />
         </div>
     </li>
 )

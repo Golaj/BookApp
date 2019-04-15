@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import ReactDOM from "react-dom"
 import Header from './components/ui/Header/Header'
 import ListObject from './components/ListObject';
 import FormComponent from './components/FormComponent';
+
+const url = "https://www.forverkliga.se/JavaScript/api/crud.php?";
 
 class App extends Component {
   constructor(props) {
@@ -13,9 +14,9 @@ class App extends Component {
       author: "",
       apiKey: "",
       isHidden: false,
-      hideBooks: false
+      hideBooks: false,
     }
-  }
+  }   
 
   toggleHidden = () => {
     this.setState({
@@ -23,7 +24,7 @@ class App extends Component {
     })
   }
 
-  toggleBookList = () =>{
+  toggleBookList = () => {
     this.setState({
       hideBooks: !this.state.hideBooks
     })
@@ -31,70 +32,63 @@ class App extends Component {
 
   setBooks = data => {
     this.setState({
-      books: data
+      books: data.data,
+      title: "",
+      author: ""
     })
   }
 
-  refreshPage() {
-    setTimeout(() => {
-      window.location.reload();
-    }, 500)
-  }
-
-  fastPageReload() {
-    window.location.reload();
-  }
-
-  startErrorCounter() {
-    const counter = sessionStorage.getItem("errorCounter")
-    if (!counter) {
-      sessionStorage.setItem("errorCounter", 1);
-    }
-  }
-
-  async componentDidMount() {
-    const key = await this.getApiKey();
-    const bookLoader = this.setBooks;
-    const reloader = this.refreshPage;
-    this.startErrorCounter();
-    const counter = parseInt(sessionStorage.getItem("errorCounter"));
-    fetch("https://www.forverkliga.se/JavaScript/api/crud.php?op=select&key=" + key)
-      .then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (data.status === "error") {
-          if (counter < 10) {
-            reloader();
-            console.log(counter + " errors has occured. Page will soon reload, have patience young padawan.")
-            sessionStorage.setItem("errorCounter", counter + 1)
-          } else {
-            ReactDOM.render(<h1>Im am very sorry, but there has been to many errors. Please try again.</h1>,
-              document.getElementById("root"))
-          }
+  request(target, fn, limit = 10) {
+    fetch(target)
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === "success") {
+          fn(data)
+          this.setState({ books : [...this.state.books] })  /* Den här raden ger ett outgrundligt error.
+           Den säger att det inte är en metod. Även det enligt vår kunskap är en korrekt skriven metod.
+           Requestanropet går igenom. Ändringen som vill genomföras är genomgjord efter en page refresh*/
+        } else if (limit > 0) {
+          this.request(target, fn, limit - 1)
         } else {
-          sessionStorage.setItem("errorCounter", 1)
+          console.log("Error has occured")
         }
-        bookLoader(data.data);
       })
+      .catch(error => console.log(error))
   }
 
-  getApiKey() {
-    const key = localStorage.getItem("apiKey");
+  componentDidMount() {
+    this.getApiKey();
+    this.setUp();
+  }
+
+ setUp() {
+    const bookLoader = this.setBooks;
+    const key = this.getApiKey();
+    this.request((url + "op=select&&key=" + key), bookLoader)
+  }
+
+  getApiKey(limit = 10) {
+    let key = localStorage.getItem("apiKey");
     const setKey = this.handleApiKey;
     if (!key) {
-      return fetch("https://www.forverkliga.se/JavaScript/api/crud.php?requestKey")
+      fetch("https://www.forverkliga.se/JavaScript/api/crud.php?requestKey")
         .then(function (response) {
           return response.json();
         }).then(function (data) {
+          if (data.status === "error") {
+            if(limit > 0)
+            this.getApiKey(limit -1);
+          } else {
+            console.log("An error occured")
+          }
           localStorage.setItem("apiKey", data.key)
-          setKey(data.key)
-          return data.key;
+          key = data.key;
         })
-    } else {
-      setKey(key)
-      return key;
     }
+    setKey(key)
+    return key;
   }
+
   handleInput = event => {
     const { name, value } = event.target;
     this.setState({
@@ -108,35 +102,34 @@ class App extends Component {
     })
   }
 
-  handleBookInput = id => {
+  handleBookInput = data => {
+    let id = data.id;
     let setTitle = this.state.title;
     let setAuthor = this.state.author;
     this.setState({
       books: [...this.state.books, { id, setTitle, setAuthor }]
     })
     window.alert("Book is saved.");
-    window.location.reload();
+    this.setUp();
   }
-
+  
   handleOnClick = event => {
     const bookInputter = this.handleBookInput;
     event.preventDefault();
-    fetch("https://www.forverkliga.se/JavaScript/api/crud.php?op=insert&key="
-      + this.state.apiKey + "&title=" + this.state.title + "&author=" + this.state.author)
-      .then(function (response) {
-        return response.json();
-      }).then(function (data) {
-        if (data.status === "success") {
-          bookInputter(data.id);
-        }
-      })
+    this.request((url + "op=insert&key=" + this.state.apiKey
+      + "&title=" + this.state.title
+      + "&author=" + this.state.author), bookInputter)
   }
 
   render() {
-    const showOrHideBookList = !this.state.hideBooks && <ListObject apiKey={this.state.apiKey} books={this.state.books}
+    const showOrHideBookList = !this.state.hideBooks && <ListObject
+      apiKey={this.state.apiKey}
+      books={this.state.books}
+      request={this.request}
+      reload={this.setUp}
     />
-      const formIsHidden = this.state.isHidden ? "Show input form" : "Hide input form";
-      const bookListIsHidden = this.state.hideBooks ? "Show booklist" : "Hide booklist"
+    const formIsHidden = this.state.isHidden ? "Show input form" : "Hide input form";
+    const bookListIsHidden = this.state.hideBooks ? "Show booklist" : "Hide booklist"
     return (
       <div className="App">
         <Header />
@@ -150,12 +143,12 @@ class App extends Component {
           author={this.state.author}
           handleInput={this.handleInput}
           handleOnClick={this.handleOnClick}
-          />}
+        />}
 
-          <br />
-          <button className="toggleButton" onClick={this.toggleBookList}>
-            {bookListIsHidden}
-          </button>
+        <br />
+        <button className="toggleButton" onClick={this.toggleBookList}>
+          {bookListIsHidden}
+        </button>
 
         {showOrHideBookList}
       </div>
@@ -163,4 +156,4 @@ class App extends Component {
   }
 }
 
-export default App
+export default App 

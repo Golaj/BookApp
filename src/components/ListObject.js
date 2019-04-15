@@ -3,10 +3,6 @@ import ListItem from './ListItem';
 
 function ListObject(props) {
 
-
-
-
-
     if (props.books) {
         return (
             <div className="display-books">
@@ -14,7 +10,14 @@ function ListObject(props) {
                     <div className="col-12">
                         <ul className="list-group">
                             {props.books.map((x) => (
-                                <ListItem key={x.id} title={x.title} author={x.author} id={x.id} apiKey={props.apiKey}/>
+                                <ListItem
+                                    key={x.id}
+                                    title={x.title}
+                                    author={x.author}
+                                    id={x.id}
+                                    apiKey={props.apiKey}
+                                    request={props.request}
+                                />
                             ))}
                         </ul>
                     </div>
